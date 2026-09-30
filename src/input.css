@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@layer components {
+  .field {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base
+           focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200
+           dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-indigo-900;
+  }
+
+  .btn-primary {
+    @apply cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white
+           transition hover:bg-indigo-500 active:scale-95;
+  }
+}
