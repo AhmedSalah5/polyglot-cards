@@ -198,3 +198,9 @@ for (const view of VIEWS) {
 }
 
 refresh();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("service-worker.js")
+    .catch((error) => console.warn("Service worker failed:", error));
+}
