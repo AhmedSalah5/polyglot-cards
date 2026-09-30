@@ -14,40 +14,88 @@
       <p class="mt-2 text-slate-500 dark:text-slate-400">English · Deutsch · Español</p>
     </header>
 
-    <main>
-      <form id="card-form"
-            class="grid gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-        <label class="grid gap-1 text-sm font-medium">
-          Language
-          <select id="lang" class="field" required>
-            <option value="en">English</option>
-            <option value="de">Deutsch</option>
-            <option value="es">Español</option>
-          </select>
-        </label>
+        <main>
+      <nav class="mb-6 flex justify-center gap-2">
+        <button id="tab-cards" class="tab tab-active">Cards</button>
+        <button id="tab-review" class="tab">Review</button>
+      </nav>
 
-        <label class="grid gap-1 text-sm font-medium">
-          Word
-          <input id="word" type="text" class="field" required>
-        </label>
+      <!-- CARDS VIEW -->
+      <section id="view-cards">
+        <form id="card-form"
+              class="grid gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <label class="grid gap-1 text-sm font-medium">
+            Language
+            <select id="lang" class="field" required>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="es">Español</option>
+            </select>
+          </label>
 
-        <label class="grid gap-1 text-sm font-medium">
-          Translation / meaning
-          <input id="translation" type="text" class="field" required>
-        </label>
+          <label class="grid gap-1 text-sm font-medium">
+            Word
+            <input id="word" type="text" class="field" required>
+          </label>
 
-        <label class="grid gap-1 text-sm font-medium">
-          Example sentence (optional)
-          <input id="sentence" type="text" class="field">
-        </label>
+          <label class="grid gap-1 text-sm font-medium">
+            Translation / meaning
+            <input id="translation" type="text" class="field" required>
+          </label>
 
-        <button type="submit" class="btn-primary">Add card</button>
-      </form>
+          <label class="grid gap-1 text-sm font-medium">
+            Example sentence (optional)
+            <input id="sentence" type="text" class="field">
+          </label>
 
-      <h2 class="mt-10 mb-4 text-xl font-semibold">
-        Your cards (<span id="count">0</span>)
-      </h2>
-      <ul id="card-list" class="grid gap-3"></ul>
+          <button type="submit" class="btn-primary">Add card</button>
+        </form>
+
+        <h2 class="mt-10 mb-4 text-xl font-semibold">
+          Your cards (<span id="count">0</span>)
+        </h2>
+        <ul id="card-list" class="grid gap-3"></ul>
+      </section>
+
+      <!-- REVIEW VIEW -->
+      <section id="view-review" class="hidden">
+        <p id="review-remaining" class="mb-4 text-center text-sm text-slate-500 dark:text-slate-400"></p>
+
+        <div id="review-done"
+             class="hidden rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-500 dark:border-slate-600 dark:text-slate-400">
+          Nothing due right now. Come back later, or add more cards.
+        </div>
+
+        <div id="review-card"
+             class="hidden space-y-6 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <div><span id="review-lang"></span></div>
+          <div id="review-word" class="text-3xl font-bold"></div>
+
+          <div id="review-answer" class="hidden space-y-2">
+            <div id="review-translation" class="text-xl text-indigo-600 dark:text-indigo-300"></div>
+            <div id="review-sentence" class="text-sm italic text-slate-500 dark:text-slate-400"></div>
+          </div>
+
+          <button id="show-answer" class="btn-primary w-full">Show answer</button>
+
+          <div id="rating-buttons" class="hidden">
+            <div class="grid grid-cols-4 gap-2">
+              <button data-rating="0" class="rating bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200">
+                Again <span data-hint class="block text-xs font-normal opacity-70"></span>
+              </button>
+              <button data-rating="1" class="rating bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                Hard <span data-hint class="block text-xs font-normal opacity-70"></span>
+              </button>
+              <button data-rating="2" class="rating bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200">
+                Good <span data-hint class="block text-xs font-normal opacity-70"></span>
+              </button>
+              <button data-rating="3" class="rating bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">
+                Easy <span data-hint class="block text-xs font-normal opacity-70"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
   </div>

@@ -1,4 +1,4 @@
-const LANGUAGES = {
+export const LANGUAGES = {
   en: { name: "English", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
   de: { name: "Deutsch", badge: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" },
   es: { name: "Español", badge: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-200" },

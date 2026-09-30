@@ -1,32 +1,30 @@
-// const greetings = [
-//   { lang: "en-US", text: "Hello!" },
-//   { lang: "de-DE", text: "Hallo!" },
-//   { lang: "es-ES", text: "¡Hola!" },
-// ];
-
-// const button = document.getElementById("hello-btn");
-// const output = document.getElementById("output");
-
-// button.addEventListener("click", () => {
-//   const pick = greetings[Math.floor(Math.random() * greetings.length)];
-//   output.textContent = pick.text;
-
-//   const speech = new SpeechSynthesisUtterance(pick.text);
-//   speech.lang = pick.lang;
-//   window.speechSynthesis.speak(speech);
-// });
-
 import { loadCards, saveCards } from "./storage.js";
 import { renderCards } from "./ui.js";
+import { newSrsFields, withSrsDefaults, isDue } from "./srs.js";
+import { createReviewer } from "./review.js";
 
-const form = document.getElementById("card-form");
-const listEl = document.getElementById("card-list");
-const countEl = document.getElementById("count");
+const $ = (id) => document.getElementById(id);
 
-let cards = loadCards();
+const form = $("card-form");
+const listEl = $("card-list");
+const countEl = $("count");
+
+let cards = loadCards().map(withSrsDefaults);
+
+const reviewer = createReviewer((updatedCard) => {
+  cards = cards.map((card) => (card.id === updatedCard.id ? updatedCard : card));
+  saveCards(cards);
+  updateDueCount();
+});
+
+function updateDueCount() {
+  const due = cards.filter((card) => isDue(card)).length;
+  $("tab-review").textContent = `Review (${due})`;
+}
 
 function refresh() {
   renderCards(cards, listEl, countEl, deleteCard);
+  updateDueCount();
 }
 
 function deleteCard(id) {
@@ -34,6 +32,17 @@ function deleteCard(id) {
   saveCards(cards);
   refresh();
 }
+
+function showView(name) {
+  $("view-cards").classList.toggle("hidden", name !== "cards");
+  $("view-review").classList.toggle("hidden", name !== "review");
+  $("tab-cards").classList.toggle("tab-active", name === "cards");
+  $("tab-review").classList.toggle("tab-active", name === "review");
+  if (name === "review") reviewer.start(cards);
+}
+
+$("tab-cards").addEventListener("click", () => showView("cards"));
+$("tab-review").addEventListener("click", () => showView("review"));
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -45,6 +54,7 @@ form.addEventListener("submit", (event) => {
     translation: form.translation.value.trim(),
     sentence: form.sentence.value.trim(),
     createdAt: new Date().toISOString(),
+    ...newSrsFields(),
   };
 
   cards.unshift(card);
