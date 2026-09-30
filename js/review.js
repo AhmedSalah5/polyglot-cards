@@ -1,5 +1,5 @@
 import { isDue, review, intervalLabel } from "./srs.js";
-import { LANGUAGES } from "./ui.js";
+import { getLang, badgeClass } from "./languages.js";
 import { speak } from "./speech.js";
 
 const $ = (id) => document.getElementById(id);
@@ -29,9 +29,9 @@ export function createReviewer(onRate) {
       : "";
     if (!current) return;
 
-    const lang = LANGUAGES[current.lang];
+    const lang = getLang(current.lang);
     const badge = $("review-lang");
-    badge.className = `inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${lang.badge}`;
+    badge.className = `inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass(lang)}`;
     badge.textContent = lang.name;
 
     $("review-word").textContent = current.word;

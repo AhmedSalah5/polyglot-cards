@@ -1,10 +1,6 @@
 import { speak } from "./speech.js";
+import { getLang, badgeClass } from "./languages.js";
 
-export const LANGUAGES = {
-  en: { name: "English", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
-  de: { name: "Deutsch", badge: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" },
-  es: { name: "Español", badge: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-200" },
-};
 
 function speakButton(text, lang) {
   const btn = document.createElement("button");
@@ -30,7 +26,7 @@ export function renderCards(cards, listEl, countEl, onDelete, onEdit) {
   }
 
   for (const card of cards) {
-    const lang = LANGUAGES[card.lang];
+    const lang = getLang(card.lang);
 
     const li = document.createElement("li");
     li.className = "grid gap-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700";
@@ -39,7 +35,8 @@ export function renderCards(cards, listEl, countEl, onDelete, onEdit) {
     top.className = "flex items-center justify-between";
 
     const badge = document.createElement("span");
-    badge.className = `rounded-full px-2.5 py-0.5 text-xs font-medium ${lang.badge}`;
+    // badge.className = `rounded-full px-2.5 py-0.5 text-xs font-medium ${lang.badge}`;
+    badge.className = `rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass(lang)}`;
     badge.textContent = lang.name;
 
     const del = document.createElement("button");
@@ -63,11 +60,13 @@ export function renderCards(cards, listEl, countEl, onDelete, onEdit) {
     const word = document.createElement("span");
     word.className = "text-lg font-semibold";
     word.textContent = card.word;
+    word.dir = "auto";
     wordRow.append(word, speakButton(card.word, card.lang));
 
     const translation = document.createElement("div");
     translation.className = "text-slate-600 dark:text-slate-300";
     translation.textContent = card.translation;
+    translation.dir = "auto";
 
     li.append(top, wordRow, translation);
 
@@ -77,6 +76,7 @@ export function renderCards(cards, listEl, countEl, onDelete, onEdit) {
       const sentence = document.createElement("span");
       sentence.className = "text-sm italic text-slate-500 dark:text-slate-400";
       sentence.textContent = card.sentence;
+      sentence.dir = "auto";
       sentenceRow.append(sentence, speakButton(card.sentence, card.lang));
       li.append(sentenceRow);
     }

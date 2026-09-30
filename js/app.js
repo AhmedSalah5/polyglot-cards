@@ -5,6 +5,16 @@ import { createReviewer } from "./review.js";
 import { createReader } from "./reader.js";
 import { recordReview, renderStats } from "./stats.js";
 import { downloadBackup, parseBackup } from "./backup.js";
+import {
+  PRESETS,
+  getLanguages,
+  badgeClass,
+  addLanguage,
+  removeLanguage,
+  hasLanguage,
+  buildCustomLanguage,
+} from "./languages.js";
+import { speechSupported, hasVoice } from "./speech.js";
 
 const $ = (id) => document.getElementById(id);
 const form = $("card-form");
@@ -37,6 +47,111 @@ function refresh() {
   updateDueCount();
   renderStats(cards, reviewLog);
 }
+
+// ---------- languages ----------
+
+function fillSelect(select, { withAll = false } = {}) {
+  const current = select.value;
+  select.innerHTML = "";
+  if (withAll) select.append(new Option("All languages", "all"));
+  for (const lang of getLanguages()) select.append(new Option(lang.name, lang.code));
+  if ([...select.options].some((option) => option.value === current)) select.value = current;
+}
+
+function populateLanguageSelects() {
+  fillSelect($("lang"));
+  fillSelect($("reader-lang"));
+  fillSelect($("filter-lang"), { withAll: true });
+  filters.lang = $("filter-lang").value;
+
+  const presetSelect = $("preset-select");
+  presetSelect.innerHTML = "";
+  for (const preset of PRESETS.filter((p) => !hasLanguage(p.code))) {
+    presetSelect.append(new Option(`${preset.name} — ${preset.english}`, preset.code));
+  }
+  $("add-language-btn").disabled = presetSelect.options.length === 0;
+}
+
+function renderLanguageList() {
+  const list = $("language-list");
+  list.innerHTML = "";
+  const all = getLanguages();
+
+  for (const lang of all) {
+    const count = cards.filter((card) => card.lang === lang.code).length;
+
+    const li = document.createElement("li");
+    li.className =
+      "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700";
+
+    const left = document.createElement("div");
+    left.className = "flex flex-wrap items-center gap-2";
+
+    const badge = document.createElement("span");
+    badge.className = `rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass(lang)}`;
+    badge.textContent = lang.name;
+    badge.dir = "auto";
+
+    const voice = !speechSupported ? "" : hasVoice(lang.locale) ? " · voice available" : " · no voice installed";
+    const info = document.createElement("span");
+    info.className = "text-sm text-slate-500 dark:text-slate-400";
+    info.textContent = `${lang.locale} · ${count} ${count === 1 ? "card" : "cards"}${voice}`;
+
+    left.append(badge, info);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Remove";
+    remove.className =
+      "cursor-pointer text-sm text-slate-400 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-slate-400";
+    remove.disabled = count > 0 || all.length === 1;
+    remove.title =
+      count > 0 ? "Move or delete this language's cards first" : all.length === 1 ? "Keep at least one language" : "Remove";
+    remove.addEventListener("click", () => {
+      removeLanguage(lang.code);
+      populateLanguageSelects();
+      renderLanguageList();
+      $("language-status").textContent = `${lang.name} removed.`;
+    });
+
+    li.append(left, remove);
+    list.append(li);
+  }
+}
+
+function addNewLanguage(lang) {
+  const added = addLanguage(lang);
+  populateLanguageSelects();
+  renderLanguageList();
+
+  const noVoice = speechSupported && !hasVoice(added.locale);
+  $("language-status").textContent =
+    `${added.name} added.` +
+    (noVoice ? " Your device has no voice for it yet, so pronunciation may not work." : "");
+}
+
+$("add-language-btn").addEventListener("click", () => {
+  const preset = PRESETS.find((p) => p.code === $("preset-select").value);
+  if (!preset) return;
+  try {
+    addNewLanguage(preset);
+  } catch (error) {
+    $("language-status").textContent = error.message;
+  }
+});
+
+$("custom-language-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  try {
+    addNewLanguage(buildCustomLanguage($("custom-name").value, $("custom-locale").value));
+    event.target.reset();
+  } catch (error) {
+    $("language-status").textContent = error.message;
+  }
+});
+
+// Voices can load a moment after the page opens
+if (speechSupported) window.speechSynthesis.addEventListener("voiceschanged", renderLanguageList);
 
 // ---------- add / edit / delete ----------
 
@@ -147,10 +262,25 @@ const reader = createReader({ getCards: () => cards, onAdd: addCard });
 async function importBackup(file) {
   const status = $("backup-status");
   try {
-    const { cards: incoming, reviewLog: incomingLog } = parseBackup(await file.text());
+    const {
+      cards: incoming,
+      reviewLog: incomingLog,
+      languages: incomingLanguages,
+    } = parseBackup(await file.text());
 
     const existingIds = new Set(cards.map((card) => card.id));
     const fresh = incoming.filter((card) => !existingIds.has(card.id)).map(withSrsDefaults);
+
+    // Make sure every language used by the imported cards exists here
+    for (const card of fresh) {
+      if (hasLanguage(card.lang)) continue;
+      const def = incomingLanguages.find((lang) => lang.code === card.lang);
+      addLanguage({
+        code: card.lang,
+        name: def?.name ?? card.lang,
+        locale: def?.locale ?? "en-US",
+      });
+    }
 
     cards = [...fresh, ...cards];
     for (const [day, count] of Object.entries(incomingLog)) {
@@ -159,6 +289,8 @@ async function importBackup(file) {
 
     saveCards(cards);
     saveLog(reviewLog);
+    populateLanguageSelects();
+    renderLanguageList();
     refresh();
     status.textContent = `Imported ${fresh.length} new cards (${incoming.length - fresh.length} already existed).`;
   } catch (error) {
@@ -167,7 +299,7 @@ async function importBackup(file) {
 }
 
 $("export-btn").addEventListener("click", () => {
-  downloadBackup(cards, reviewLog);
+  downloadBackup(cards, reviewLog, getLanguages());
   $("backup-status").textContent = `Exported ${cards.length} cards.`;
 });
 
@@ -181,7 +313,7 @@ $("import-file").addEventListener("change", async (event) => {
 
 // ---------- tabs ----------
 
-const VIEWS = ["cards", "review", "reader", "stats"];
+const VIEWS = ["cards", "review", "reader", "stats", "languages"];
 
 function showView(name) {
   for (const view of VIEWS) {
@@ -191,12 +323,16 @@ function showView(name) {
   if (name === "review") reviewer.start(cards);
   if (name === "reader") reader.refresh();
   if (name === "stats") renderStats(cards, reviewLog);
+  if (name === "languages") renderLanguageList();
 }
 
 for (const view of VIEWS) {
   $(`tab-${view}`).addEventListener("click", () => showView(view));
 }
 
+// ---------- start ----------
+
+populateLanguageSelects();
 refresh();
 
 if ("serviceWorker" in navigator) {

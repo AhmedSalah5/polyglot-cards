@@ -1,4 +1,4 @@
-const CACHE = "polyglot-cards-v1";
+const CACHE = "polyglot-cards-v2";
 
 // Every file the app needs to run offline. These must match your real file names exactly.
 const FILES = [
@@ -15,6 +15,7 @@ const FILES = [
   "js/speech.js",
   "js/stats.js",
   "js/backup.js",
+  "js/languages.js",
   "icons/icon-192.png",
   "icons/icon-512.png",
 ];

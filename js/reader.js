@@ -1,18 +1,53 @@
 import { speak } from "./speech.js";
+import { getLang } from "./languages.js";
 
 const $ = (id) => document.getElementById(id);
+const HAS_LETTER = /\p{L}/u;
 
-// Letters from any language (ä, ö, ü, ß, ñ, é...), allowing inner ' or -
-const WORD = /\p{L}+(?:['’-]\p{L}+)*/gu;
+function splitSentences(text, locale) {
+  if ("Segmenter" in Intl) {
+    const segmenter = new Intl.Segmenter(locale, { granularity: "sentence" });
+    return [...segmenter.segment(text)].map((s) => s.segment.trim()).filter(Boolean);
+  }
+  // Fallback for very old browsers
+  return text.match(/[^.!?。！？؟]+[.!?。！？؟]*/g)?.map((s) => s.trim()).filter(Boolean) ?? [];
+}
+
+// Returns pieces like [{ text: "Ich", isWord: true }, { text: " ", isWord: false }, ...]
+function splitWords(sentence, locale) {
+  if ("Segmenter" in Intl) {
+    const segmenter = new Intl.Segmenter(locale, { granularity: "word" });
+    return [...segmenter.segment(sentence)].map((s) => ({
+      text: s.segment,
+      isWord: Boolean(s.isWordLike) && HAS_LETTER.test(s.segment),
+    }));
+  }
+  // Fallback for very old browsers
+  const parts = [];
+  let last = 0;
+  for (const m of sentence.matchAll(/[\p{L}\p{M}]+(?:['’-][\p{L}\p{M}]+)*/gu)) {
+    if (m.index > last) parts.push({ text: sentence.slice(last, m.index), isWord: false });
+    parts.push({ text: m[0], isWord: true });
+    last = m.index + m[0].length;
+  }
+  if (last < sentence.length) parts.push({ text: sentence.slice(last), isWord: false });
+  return parts;
+}
 
 export function createReader({ getCards, onAdd }) {
   let words = [];      // every clickable word: { span, word }
   let selected = null; // the word the user clicked: { word, sentence, span }
-  let textLang = "de"; // language of the loaded text
+  let textLang = "";   // language code of the loaded text
+  let textLocale = "en-US";
+
+  $("panel-word").dir = "auto";
+  $("panel-sentence").dir = "auto";
 
   function isKnown(word) {
-    const w = word.toLowerCase();
-    return getCards().some((c) => c.lang === textLang && c.word.toLowerCase() === w);
+    const w = word.toLocaleLowerCase(textLocale);
+    return getCards().some(
+      (c) => c.lang === textLang && c.word.toLocaleLowerCase(textLocale) === w
+    );
   }
 
   function markKnown() {
@@ -40,7 +75,7 @@ export function createReader({ getCards, onAdd }) {
     $("panel-status").textContent = isKnown(word) ? "Already in your deck." : "";
 
     const q = encodeURIComponent(word);
-    $("link-translate").href = `https://translate.google.com/?sl=${textLang}&text=${q}&op=translate`;
+    $("link-translate").href = `https://translate.google.com/?sl=auto&text=${q}&op=translate`;
     $("link-wiktionary").href = `https://en.wiktionary.org/wiki/${q}`;
 
     $("word-panel").classList.remove("hidden");
@@ -49,26 +84,27 @@ export function createReader({ getCards, onAdd }) {
   }
 
   function renderSentence(sentence, paragraph) {
-    let last = 0;
-    for (const match of sentence.matchAll(WORD)) {
-      if (match.index > last) paragraph.append(sentence.slice(last, match.index));
+    for (const part of splitWords(sentence, textLocale)) {
+      if (!part.isWord) {
+        paragraph.append(part.text);
+        continue;
+      }
 
       const span = document.createElement("span");
-      span.textContent = match[0];
+      span.textContent = part.text;
       span.className = "cursor-pointer rounded px-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-900";
-      span.addEventListener("click", () => select(match[0], sentence, span));
+      span.addEventListener("click", () => select(part.text, sentence, span));
 
-      words.push({ span, word: match[0] });
+      words.push({ span, word: part.text });
       paragraph.append(span);
-      last = match.index + match[0].length;
     }
-    if (last < sentence.length) paragraph.append(sentence.slice(last));
     paragraph.append(" ");
   }
 
   function load() {
     const text = $("reader-input").value.trim();
     textLang = $("reader-lang").value;
+    textLocale = getLang(textLang).locale;
 
     const container = $("reader-text");
     container.innerHTML = "";
@@ -77,10 +113,9 @@ export function createReader({ getCards, onAdd }) {
 
     for (const line of text.split(/\n+/)) {
       const paragraph = document.createElement("p");
-      const sentences = line.match(/[^.!?]+[.!?]*/g) ?? [];
-      for (const raw of sentences) {
-        const sentence = raw.trim();
-        if (sentence) renderSentence(sentence, paragraph);
+      paragraph.dir = "auto";
+      for (const sentence of splitSentences(line, textLocale)) {
+        renderSentence(sentence, paragraph);
       }
       if (paragraph.childNodes.length) container.append(paragraph);
     }

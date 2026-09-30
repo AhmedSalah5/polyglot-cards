@@ -1,10 +1,9 @@
-const LANGS = ["en", "de", "es"];
-
-export function downloadBackup(cards, reviewLog) {
+export function downloadBackup(cards, reviewLog, languages) {
   const data = {
     app: "polyglot-cards",
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
+    languages,
     cards,
     reviewLog,
   };
@@ -30,14 +29,15 @@ export function parseBackup(text) {
     throw new Error("This file is not valid JSON.");
   }
 
-  const rawCards = Array.isArray(data) ? data : data?.cards;
+  const isList = Array.isArray(data);
+  const rawCards = isList ? data : data?.cards;
   if (!Array.isArray(rawCards)) throw new Error("No cards found in this file.");
 
   const cards = rawCards
     .filter(
       (c) =>
         c &&
-        LANGS.includes(c.lang) &&
+        typeof c.lang === "string" && c.lang &&
         typeof c.word === "string" && c.word.trim() &&
         typeof c.translation === "string" && c.translation.trim()
     )
@@ -48,9 +48,18 @@ export function parseBackup(text) {
     }));
 
   const reviewLog =
-    !Array.isArray(data) && data?.reviewLog && typeof data.reviewLog === "object"
-      ? data.reviewLog
-      : {};
+    !isList && data?.reviewLog && typeof data.reviewLog === "object" ? data.reviewLog : {};
 
-  return { cards, reviewLog };
+  const languages =
+    !isList && Array.isArray(data?.languages)
+      ? data.languages.filter(
+          (l) =>
+            l &&
+            typeof l.code === "string" &&
+            typeof l.name === "string" &&
+            typeof l.locale === "string"
+        )
+      : [];
+
+  return { cards, reviewLog, languages };
 }
