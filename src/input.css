@@ -25,5 +25,9 @@
     @apply cursor-pointer rounded-lg px-2 py-2 text-sm font-semibold transition
            hover:brightness-95 active:scale-95;
   }
-  
+
+  .speak {
+    @apply cursor-pointer rounded-full p-1 text-slate-400 transition hover:text-indigo-500;
+  }
+
 }

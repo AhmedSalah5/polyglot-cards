@@ -1,5 +1,6 @@
 import { isDue, review, intervalLabel } from "./srs.js";
 import { LANGUAGES } from "./ui.js";
+import { speak } from "./speech.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -34,6 +35,8 @@ export function createReviewer(onRate) {
     $("review-word").textContent = current.word;
     $("review-translation").textContent = current.translation;
     $("review-sentence").textContent = current.sentence;
+    $("speak-sentence").classList.toggle("hidden", !current.sentence);
+
 
     answerEl.classList.add("hidden");
     ratingEl.classList.add("hidden");
@@ -65,6 +68,10 @@ export function createReviewer(onRate) {
   for (const btn of ratingEl.querySelectorAll("[data-rating]")) {
     btn.addEventListener("click", () => rate(Number(btn.dataset.rating)));
   }
+
+
+  $("speak-word").addEventListener("click", () => current && speak(current.word, current.lang));
+  $("speak-sentence").addEventListener("click", () => current?.sentence && speak(current.sentence, current.lang));
 
   return { start };
 }

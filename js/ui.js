@@ -1,8 +1,21 @@
+import { speak } from "./speech.js";
+
 export const LANGUAGES = {
   en: { name: "English", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
   de: { name: "Deutsch", badge: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" },
   es: { name: "Español", badge: "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-200" },
 };
+
+function speakButton(text, lang) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "speak";
+  btn.title = "Listen";
+  btn.setAttribute("aria-label", "Listen");
+  btn.textContent = "🔊";
+  btn.addEventListener("click", () => speak(text, lang));
+  return btn;
+}
 
 export function renderCards(cards, listEl, countEl, onDelete) {
   listEl.innerHTML = "";
@@ -36,21 +49,27 @@ export function renderCards(cards, listEl, countEl, onDelete) {
 
     top.append(badge, del);
 
-    const word = document.createElement("div");
+    const wordRow = document.createElement("div");
+    wordRow.className = "flex items-center gap-2";
+    const word = document.createElement("span");
     word.className = "text-lg font-semibold";
     word.textContent = card.word;
+    wordRow.append(word, speakButton(card.word, card.lang));
 
     const translation = document.createElement("div");
     translation.className = "text-slate-600 dark:text-slate-300";
     translation.textContent = card.translation;
 
-    li.append(top, word, translation);
+    li.append(top, wordRow, translation);
 
     if (card.sentence) {
-      const sentence = document.createElement("div");
-      sentence.className = "mt-1 text-sm italic text-slate-500 dark:text-slate-400";
+      const sentenceRow = document.createElement("div");
+      sentenceRow.className = "mt-1 flex items-start gap-2";
+      const sentence = document.createElement("span");
+      sentence.className = "text-sm italic text-slate-500 dark:text-slate-400";
       sentence.textContent = card.sentence;
-      li.append(sentence);
+      sentenceRow.append(sentence, speakButton(card.sentence, card.lang));
+      li.append(sentenceRow);
     }
 
     listEl.append(li);

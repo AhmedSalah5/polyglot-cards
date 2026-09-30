@@ -18,6 +18,7 @@
       <nav class="mb-6 flex justify-center gap-2">
         <button id="tab-cards" class="tab tab-active">Cards</button>
         <button id="tab-review" class="tab">Review</button>
+        <button id="tab-reader" class="tab">Reader</button>
       </nav>
 
       <!-- CARDS VIEW -->
@@ -69,11 +70,18 @@
         <div id="review-card"
              class="hidden space-y-6 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <div><span id="review-lang"></span></div>
-          <div id="review-word" class="text-3xl font-bold"></div>
+          <!-- <div id="review-word" class="text-3xl font-bold"></div> -->
+          <div class="flex items-center justify-center gap-3">
+            <span id="review-word" class="text-3xl font-bold"></span>
+            <button id="speak-word" type="button" class="speak" title="Listen" aria-label="Listen to the word">🔊</button>
+          </div>
 
           <div id="review-answer" class="hidden space-y-2">
             <div id="review-translation" class="text-xl text-indigo-600 dark:text-indigo-300"></div>
-            <div id="review-sentence" class="text-sm italic text-slate-500 dark:text-slate-400"></div>
+            <div class="flex items-center justify-center gap-2">
+              <span id="review-sentence" class="text-sm italic text-slate-500 dark:text-slate-400"></span>
+              <button id="speak-sentence" type="button" class="speak" title="Listen" aria-label="Listen to the sentence">🔊</button>
+            </div>
           </div>
 
           <button id="show-answer" class="btn-primary w-full">Show answer</button>
@@ -96,6 +104,60 @@
           </div>
         </div>
       </section>
+
+            <!-- READER VIEW -->
+      <section id="view-reader" class="hidden">
+        <div class="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <label class="grid gap-1 text-sm font-medium">
+            Language of the text
+            <select id="reader-lang" class="field">
+              <option value="de">Deutsch</option>
+              <option value="es">Español</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <label class="grid gap-1 text-sm font-medium">
+            Paste a text
+            <textarea id="reader-input" rows="5" class="field"></textarea>
+          </label>
+          <button id="reader-load" type="button" class="btn-primary w-full">Read this text</button>
+        </div>
+
+        <div id="reader-text" class="mt-6 space-y-4 text-lg leading-8"></div>
+
+        <div id="word-panel"
+             class="hidden sticky bottom-4 mt-6 rounded-2xl bg-white p-5 shadow-lg ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span id="panel-word" class="text-2xl font-bold"></span>
+                <button id="panel-speak" type="button" class="speak" title="Listen" aria-label="Listen to the word">🔊</button>
+              </div>
+              <button id="panel-close" type="button" class="cursor-pointer text-slate-400 hover:text-slate-600" aria-label="Close">✕</button>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <p id="panel-sentence" class="text-sm italic text-slate-500 dark:text-slate-400"></p>
+              <button id="panel-speak-sentence" type="button" class="speak" title="Listen" aria-label="Listen to the sentence">🔊</button>
+            </div>
+
+            <input id="panel-translation" type="text" class="field" placeholder="Translation / meaning">
+
+            <div class="flex flex-wrap items-center gap-4 text-sm">
+              <a id="link-translate" href="#" target="_blank" rel="noopener"
+                 class="text-indigo-600 underline dark:text-indigo-300">Google Translate</a>
+              <a id="link-wiktionary" href="#" target="_blank" rel="noopener"
+                 class="text-indigo-600 underline dark:text-indigo-300">Wiktionary</a>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button id="panel-add" type="button" class="btn-primary">Add to deck</button>
+              <span id="panel-status" class="text-sm text-slate-500 dark:text-slate-400"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
   </div>
