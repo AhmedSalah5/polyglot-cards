@@ -13,10 +13,38 @@
   </header>
 
   <main>
-    <button id="hello-btn">Say hello</button>
-    <p id="output"></p>
+    <form id="card-form">
+      <label>
+        Language
+        <select id="lang" required>
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+
+      <label>
+        Word
+        <input id="word" type="text" required>
+      </label>
+
+      <label>
+        Translation / meaning
+        <input id="translation" type="text" required>
+      </label>
+
+      <label>
+        Example sentence (optional)
+        <input id="sentence" type="text">
+      </label>
+
+      <button type="submit">Add card</button>
+    </form>
+
+    <h2>Your cards (<span id="count">0</span>)</h2>
+    <ul id="card-list"></ul>
   </main>
 
-  <script src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -12,3 +12,53 @@ button {
   font-size: 1rem;
   cursor: pointer;
 }
+
+form {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+input, select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  background: #eef;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.delete {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+}
