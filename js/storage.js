@@ -1,13 +1,16 @@
-const KEY = "polyglot-cards";
+const CARDS_KEY = "polyglot-cards";
+const LOG_KEY = "polyglot-review-log";
 
-export function loadCards() {
+function read(key, fallback) {
   try {
-    return JSON.parse(localStorage.getItem(KEY)) ?? [];
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
   } catch {
-    return [];
+    return fallback;
   }
 }
 
-export function saveCards(cards) {
-  localStorage.setItem(KEY, JSON.stringify(cards));
-}
+export const loadCards = () => read(CARDS_KEY, []);
+export const saveCards = (cards) => localStorage.setItem(CARDS_KEY, JSON.stringify(cards));
+
+export const loadLog = () => read(LOG_KEY, {});
+export const saveLog = (log) => localStorage.setItem(LOG_KEY, JSON.stringify(log));

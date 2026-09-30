@@ -17,14 +17,14 @@ function speakButton(text, lang) {
   return btn;
 }
 
-export function renderCards(cards, listEl, countEl, onDelete) {
+export function renderCards(cards, listEl, countEl, onDelete, onEdit) {
   listEl.innerHTML = "";
   countEl.textContent = cards.length;
 
   if (cards.length === 0) {
     const empty = document.createElement("li");
     empty.className = "rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500 dark:border-slate-600 dark:text-slate-400";
-    empty.textContent = "No cards yet. Add your first word above.";
+    empty.textContent = "No cards to show.";
     listEl.append(empty);
     return;
   }
@@ -47,7 +47,16 @@ export function renderCards(cards, listEl, countEl, onDelete) {
     del.textContent = "Delete";
     del.addEventListener("click", () => onDelete(card.id));
 
-    top.append(badge, del);
+    const edit = document.createElement("button");
+    edit.className = "cursor-pointer text-xs text-slate-400 transition hover:text-indigo-500";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", () => onEdit(card.id));
+
+    const actions = document.createElement("div");
+    actions.className = "flex gap-3";
+    actions.append(edit, del);
+
+    top.append(badge, actions);
 
     const wordRow = document.createElement("div");
     wordRow.className = "flex items-center gap-2";

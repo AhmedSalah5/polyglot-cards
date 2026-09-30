@@ -14,17 +14,22 @@
       <p class="mt-2 text-slate-500 dark:text-slate-400">English · Deutsch · Español</p>
     </header>
 
-        <main>
-      <nav class="mb-6 flex justify-center gap-2">
+    <main>
+      <nav class="mb-6 flex flex-wrap justify-center gap-2">
         <button id="tab-cards" class="tab tab-active">Cards</button>
         <button id="tab-review" class="tab">Review</button>
         <button id="tab-reader" class="tab">Reader</button>
+        <button id="tab-stats" class="tab">Stats</button>
       </nav>
 
       <!-- CARDS VIEW -->
       <section id="view-cards">
         <form id="card-form"
               class="grid gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <p id="edit-banner" class="hidden text-sm font-medium text-indigo-600 dark:text-indigo-300">
+            Editing a card
+          </p>
+
           <label class="grid gap-1 text-sm font-medium">
             Language
             <select id="lang" class="field" required>
@@ -49,12 +54,24 @@
             <input id="sentence" type="text" class="field">
           </label>
 
-          <button type="submit" class="btn-primary">Add card</button>
+          <div class="flex gap-3">
+            <button id="submit-btn" type="submit" class="btn-primary flex-1">Add card</button>
+            <button id="cancel-edit" type="button" class="hidden btn-secondary">Cancel</button>
+          </div>
         </form>
 
-        <h2 class="mt-10 mb-4 text-xl font-semibold">
-          Your cards (<span id="count">0</span>)
-        </h2>
+        <div class="mt-10 mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold">Your cards (<span id="count">0</span>)</h2>
+          <div class="flex gap-2">
+            <select id="filter-lang" class="field w-auto">
+              <option value="all">All languages</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+              <option value="es">Español</option>
+            </select>
+            <input id="search" type="search" placeholder="Search..." class="field w-auto">
+          </div>
+        </div>
         <ul id="card-list" class="grid gap-3"></ul>
       </section>
 
@@ -70,7 +87,7 @@
         <div id="review-card"
              class="hidden space-y-6 rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <div><span id="review-lang"></span></div>
-          <!-- <div id="review-word" class="text-3xl font-bold"></div> -->
+
           <div class="flex items-center justify-center gap-3">
             <span id="review-word" class="text-3xl font-bold"></span>
             <button id="speak-word" type="button" class="speak" title="Listen" aria-label="Listen to the word">🔊</button>
@@ -102,10 +119,12 @@
               </button>
             </div>
           </div>
+
+          <p class="text-xs text-slate-400">Shortcuts: Space = show answer · 1–4 = rate</p>
         </div>
       </section>
 
-            <!-- READER VIEW -->
+      <!-- READER VIEW -->
       <section id="view-reader" class="hidden">
         <div class="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <label class="grid gap-1 text-sm font-medium">
@@ -158,6 +177,45 @@
         </div>
       </section>
 
+      <!-- STATS VIEW -->
+      <section id="view-stats" class="hidden">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div id="stat-total" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Total cards</div>
+          </div>
+          <div class="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div id="stat-due" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Due now</div>
+          </div>
+          <div class="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div id="stat-learned" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Learned (21+ days)</div>
+          </div>
+          <div class="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div id="stat-today" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Reviewed today</div>
+          </div>
+          <div class="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+            <div id="stat-streak" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">Day streak</div>
+          </div>
+        </div>
+
+        <div class="mt-8 space-y-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+          <h2 class="text-xl font-semibold">Backup</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Your cards are stored only in this browser. Export a backup file now and then,
+            and use it to restore your cards on another browser or device.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <button id="export-btn" type="button" class="btn-primary">Export backup</button>
+            <button id="import-btn" type="button" class="btn-secondary">Import backup</button>
+            <input id="import-file" type="file" accept=".json,application/json" class="hidden">
+          </div>
+          <p id="backup-status" class="text-sm text-slate-500 dark:text-slate-400"></p>
+        </div>
+      </section>
     </main>
 
   </div>

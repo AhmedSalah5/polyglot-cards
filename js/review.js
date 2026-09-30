@@ -7,6 +7,7 @@ const $ = (id) => document.getElementById(id);
 export function createReviewer(onRate) {
   let queue = [];
   let current = null;
+  let revealed = false;
 
   const showBtn = $("show-answer");
   const answerEl = $("review-answer");
@@ -18,6 +19,7 @@ export function createReviewer(onRate) {
   }
 
   function next() {
+    revealed = false;
     current = queue.shift() ?? null;
 
     $("review-done").classList.toggle("hidden", current !== null);
@@ -45,6 +47,7 @@ export function createReviewer(onRate) {
 
   function reveal() {
     if (!current) return;
+    revealed = true;
 
     // Show what each button would do, e.g. "Good · 3d"
     for (const btn of ratingEl.querySelectorAll("[data-rating]")) {
@@ -72,6 +75,19 @@ export function createReviewer(onRate) {
 
   $("speak-word").addEventListener("click", () => current && speak(current.word, current.lang));
   $("speak-sentence").addEventListener("click", () => current?.sentence && speak(current.sentence, current.lang));
+
+
+  document.addEventListener("keydown", (event) => {
+    if (!current || $("view-review").classList.contains("hidden")) return;
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+
+    if (!revealed && (event.key === " " || event.key === "Enter")) {
+      event.preventDefault();
+      reveal();
+    } else if (revealed && ["1", "2", "3", "4"].includes(event.key)) {
+      rate(Number(event.key) - 1);
+    }
+  });
 
   return { start };
 }

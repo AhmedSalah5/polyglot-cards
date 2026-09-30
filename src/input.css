@@ -30,4 +30,10 @@
     @apply cursor-pointer rounded-full p-1 text-slate-400 transition hover:text-indigo-500;
   }
 
+  .btn-secondary {
+    @apply cursor-pointer rounded-lg bg-slate-200 px-4 py-2 font-semibold text-slate-800
+           transition hover:bg-slate-300 active:scale-95
+           dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600;
+  }
+
 }
