@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Polyglot Cards",
   "short_name": "Polyglot",
-  "description": "Learn English, German and Spanish with spaced repetition flashcards.",
+  "description": "Learn vocabulary in any language with spaced repetition flashcards.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
