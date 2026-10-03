@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Polyglot Cards</title>
   <meta name="description" content="A free flashcard app for learning vocabulary in any language, with spaced repetition and pronunciation.">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("polyglot-theme") || "system";
+        var dark = saved === "dark" ||
+          (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="css/output.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4f46e5">
@@ -14,9 +24,19 @@
 <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
   <div class="mx-auto max-w-2xl px-4 py-10">
 
-    <header class="mb-8 text-center">
-      <h1 class="text-4xl font-bold tracking-tight">Polyglot Cards</h1>
-      <p class="mt-2 text-slate-500 dark:text-slate-400">Learn any language, one card at a time</p>
+    <header class="mb-8">
+      <div class="mb-4 flex justify-end">
+        <div class="flex gap-1 rounded-full bg-slate-200 p-1 text-sm dark:bg-slate-800" role="group" aria-label="Theme">
+          <button type="button" data-theme="light" class="theme-btn" aria-label="Light theme" title="Light">☀️</button>
+          <button type="button" data-theme="dark" class="theme-btn" aria-label="Dark theme" title="Dark">🌙</button>
+          <button type="button" data-theme="system" class="theme-btn" aria-label="Follow device setting" title="Follow device setting">Auto</button>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <h1 class="text-4xl font-bold tracking-tight">Polyglot Cards</h1>
+        <p class="mt-2 text-slate-500 dark:text-slate-400">Learn any language, one card at a time</p>
+      </div>
     </header>
 
     <main>

@@ -1,5 +1,6 @@
 import { loadCards, saveCards, loadLog, saveLog } from "./storage.js";
 import { renderCards } from "./ui.js";
+import { initTheme } from "./theme.js";
 import { newSrsFields, withSrsDefaults, isDue } from "./srs.js";
 import { createReviewer } from "./review.js";
 import { createReader } from "./reader.js";
@@ -331,8 +332,9 @@ for (const view of VIEWS) {
 }
 
 // ---------- start ----------
-
+initTheme();
 populateLanguageSelects();
+
 refresh();
 
 if ("serviceWorker" in navigator) {
