@@ -61,13 +61,22 @@
           </div>
         </form>
 
-        <div class="mt-10 mb-4 flex flex-wrap items-center justify-between gap-3 max-w-full">
+        <!-- <div class="mt-10 mb-4 flex flex-wrap items-center justify-between gap-3 max-w-full">
           <h2 class="text-xl font-semibold">Your cards (<span id="count">0</span>)</h2>
           <div class="flex gap-2">
             <select id="filter-lang" class="field w-auto"></select>
             <input id="search" type="search" placeholder="Search..." class="field w-auto">
           </div>
+        </div> -->
+
+        <div class="mt-10 mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold">Your cards (<span id="count">0</span>)</h2>
+          <div class="flex w-full gap-2 sm:w-auto">
+            <select id="filter-lang" class="field min-w-0 flex-1 sm:w-auto sm:flex-none"></select>
+            <input id="search" type="search" placeholder="Search..." class="field min-w-0 flex-1 sm:w-auto sm:flex-none">
+          </div>
         </div>
+
         <ul id="card-list" class="grid gap-3"></ul>
       </section>
 
