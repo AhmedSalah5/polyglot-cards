@@ -1,6 +1,6 @@
-const CACHE = "polyglot-cards-v3";
+const CACHE = "polyglot-cards-v5";
 
-// Every file the app needs to run offline. These must match your real file names exactly.
+// Every file the app needs to run offline. Names must match your real files exactly.
 const FILES = [
   "./",
   "index.html",
@@ -21,13 +21,21 @@ const FILES = [
   "icons/icon-512.png",
 ];
 
-// 1. Install: save all the files
+// 1. Install: save each file separately, so one missing file doesn't break everything
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)));
+  event.waitUntil(
+    caches.open(CACHE).then((cache) =>
+      Promise.all(
+        FILES.map((file) =>
+          cache.add(file).catch((error) => console.warn("Not cached:", file, error))
+        )
+      )
+    )
+  );
   self.skipWaiting();
 });
 
-// 2. Activate: delete old caches from previous versions
+// 2. Activate: delete caches from older versions
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -37,21 +45,28 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// 3. Fetch: try the internet first (so you always get the newest version),
-//    and fall back to the saved copy when offline
+// 3. Fetch: answer from the saved copy right away, and refresh it in the background
+async function handle(event) {
+  const { request } = event;
+  const cache = await caches.open(CACHE);
+  const cached = await cache.match(request, { ignoreSearch: true });
+
+  const update = fetch(request)
+    .then((response) => {
+      if (response.ok) cache.put(request, response.clone());
+      return response;
+    })
+    .catch(() => null);
+
+  if (cached) {
+    event.waitUntil(update); // keep the worker alive until the refresh finishes
+    return cached;
+  }
+  return (await update) ?? (await cache.match("index.html")) ?? Response.error();
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
-
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(request).then((cached) => cached ?? caches.match("index.html")))
-  );
+  event.respondWith(handle(event));
 });
